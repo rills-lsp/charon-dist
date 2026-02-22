@@ -38,6 +38,15 @@ jobs:
           create_annotated_tag: true
           tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
 
+      - name: Debug
+        run: |
+          echo "1: $HOME"
+          ls /home/runner
+          echo "2"
+          ls /home/runner/charon
+          echo "3"
+          ls /home/runner/charon/bin
+
       - name: Release charon
         if: github.ref == 'refs/heads/master'
         uses: svenstaro/upload-release-action@v2
