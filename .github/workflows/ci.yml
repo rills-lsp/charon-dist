@@ -38,12 +38,23 @@ jobs:
           create_annotated_tag: true
           tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
 
+      - name: Debug
+        run: |
+          echo "1: $HOME"
+          echo $GITHUB_WORKSPACE
+          echo "2"
+          ls $GITHUB_WORKSPACE
+          echo "3"
+          ls $GITHUB_WORKSPACE/bin
+          echo "4"
+          ls $GITHUB_WORKSPACE/charon/bin
+
       - name: Release charon
         if: github.ref == 'refs/heads/master'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: /home/runner/charon/bin/charon
+          file: $GITHUB_WORKSPACE/bin/charon
           asset_name: charon
           tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
 
@@ -52,6 +63,6 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: /home/runner/charon/bin/charon-driver
+          file: $GITHUB_WORKSPACE/bin/charon-driver
           asset_name: charon-driver
           tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
