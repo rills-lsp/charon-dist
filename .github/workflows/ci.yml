@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  rust:
+    name: Build and distribute Charon
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          repository: AeneasVerif/charon
+
+      - name: Install rustfmt
+        run: rustup component add rustfmt
+
+      - name: Build
+        run: make build-charon-rust
