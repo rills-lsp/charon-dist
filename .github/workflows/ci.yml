@@ -1,5 +1,8 @@
 name: CI
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -22,3 +25,33 @@ jobs:
 
       - name: Build
         run: make build-charon-rust
+
+      - name: Compute tag name
+        id: tag_name
+        run: echo "TAG_NAME=$GITHUB_RUN_NUMBER.$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        if: github.ref == 'refs/heads/master'
+        uses: laputansoft/github-tag-action@v4.6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          create_annotated_tag: true
+          tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
+
+      - name: Release charon
+        if: github.ref == 'refs/heads/master'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /home/runner/charon/bin/charon
+          asset_name: charon
+          tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
+
+      - name: Release charon-driver
+        if: github.ref == 'refs/heads/master'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: /home/runner/charon/bin/charon-driver
+          asset_name: charon-driver
+          tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
