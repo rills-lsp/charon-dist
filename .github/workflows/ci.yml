@@ -26,6 +26,11 @@ jobs:
       - name: Build
         run: make build-charon-rust
 
+      - name: Create archive
+        run: |
+          cd $GITHUB_WORKSPACE/bin
+          tar -czf charon.tar.gz charon charon-driver
+
       - name: Compute tag name
         id: tag_name
         run: echo "TAG_NAME=$GITHUB_RUN_NUMBER.$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
@@ -38,31 +43,11 @@ jobs:
           create_annotated_tag: true
           tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
 
-      - name: Debug
-        run: |
-          echo "1: $HOME"
-          echo $GITHUB_WORKSPACE
-          echo "2"
-          ls $GITHUB_WORKSPACE
-          echo "3"
-          ls $GITHUB_WORKSPACE/bin
-          echo "4"
-          ls ${{ github.workspace }}/bin
-
       - name: Release charon
         if: github.ref == 'refs/heads/master'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/bin/charon
+          file: ${{ github.workspace }}/bin/charon.tar.gz
           asset_name: charon
-          tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
-
-      - name: Release charon-driver
-        if: github.ref == 'refs/heads/master'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/bin/charon-driver
-          asset_name: charon-driver
           tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
