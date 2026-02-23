@@ -33,7 +33,13 @@ jobs:
 
       - name: Compute tag name
         id: tag_name
-        run: echo "TAG_NAME=$GITHUB_RUN_NUMBER.$GITHUB_RUN_ATTEMPT" >> $GITHUB_OUTPUT
+        run: |
+          cd $GITHUB_WORKSPACE/charon
+          # Run cargo pkgid first to make sure the step will fail if the version cannot be found.
+          cargo pkgid
+          charon_version=$(cargo pkgid | sed 's/.*#//')
+          echo "Version: $charon_version"
+          echo "TAG_NAME=$charon_version" >> $GITHUB_OUTPUT
 
       - name: Create tag
         if: github.ref == 'refs/heads/master'
@@ -41,7 +47,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           create_annotated_tag: true
-          tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
+          tag: v${{ steps.tag_name.outputs.TAG_NAME }}
 
       - name: Release charon
         if: github.ref == 'refs/heads/master'
@@ -50,4 +56,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/bin/charon.tar.gz
           asset_name: charon.tar.gz
-          tag: master-${{ steps.tag_name.outputs.TAG_NAME }}
+          tag: v${{ steps.tag_name.outputs.TAG_NAME }}
